@@ -17,5 +17,5 @@ jobs:
       - uses: axel-op/googlejavaformat-action@v4
         with:
           commit-message: "Apply code formatting [skip ci]"
-          args: "--skip-sorting-imports --replace"
+          args: "--skip-sorting-imports --aosp --replace"
           github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,15 +1,14 @@
 package com.github.fauxle.ef;
 
 import com.github.fauxle.ef.commands.EnderFurnaceCommand;
+import java.util.Objects;
+import java.util.Random;
 import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.Objects;
-import java.util.Random;
 
 public class EnderFurnacePlugin extends JavaPlugin {
 

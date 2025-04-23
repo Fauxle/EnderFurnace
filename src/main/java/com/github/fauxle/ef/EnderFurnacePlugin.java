@@ -16,7 +16,7 @@ public class EnderFurnacePlugin extends JavaPlugin {
     private World enderFurnaceWorld;
 
     @Override
-    public void onEnable(){
+    public void onEnable() {
         Objects.requireNonNull(
                 getCommand("enderfurnace"),
                 "enderfurnace command is not registered in plugin.yml"
@@ -34,7 +34,7 @@ public class EnderFurnacePlugin extends JavaPlugin {
                 });
 
         enderFurnaceWorld = enderFurnaceWorldCreator.createWorld();
-        if(enderFurnaceWorld == null){
+        if (enderFurnaceWorld == null) {
             getLogger().severe("Error: Ender Furnace world not found");
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -47,8 +47,8 @@ public class EnderFurnacePlugin extends JavaPlugin {
     }
 
     @Override
-    public void onDisable(){
-        if(enderFurnaceWorld != null) {
+    public void onDisable() {
+        if (enderFurnaceWorld != null) {
             getServer().unloadWorld(enderFurnaceWorld, true);
             enderFurnaceWorld = null;
         }

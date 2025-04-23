@@ -1,20 +1,60 @@
-name: Format
+name: Format Java Code
 
 on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
-
-  formatting:
+  format:
+    # Skip execution if the commit was already auto-formatted.
+    if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4 # v2 minimum required
-      - uses: axel-op/googlejavaformat-action@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
         with:
-          commit-message: "Apply code formatting [skip ci]"
-          args: "--skip-sorting-imports --replace"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Full repo is needed for pushing changes
+
+      - name: Set up Java 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Download google-java-format
+        run: |
+          curl -L -o google-java-format.jar https://github.com/google/google-java-format/releases/download/v1.26.0/google-java-format-1.26.0-all-deps.jar
+
+      - name: Reformat Java Code
+        run: |
+          # Find all Java files
+          find . -type f -name "*.java" > java_files.txt
+          while read -r file; do
+            echo "Formatting $file"
+            java -jar google-java-format.jar -i "$file"
+          done < java_files.txt
+
+      - name: Commit and Push Formatting Changes
+        run: |
+          # Configure git with a generic bot identity
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Check for changes; if any, commit and push.
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Formatting changes detected."
+            git add .
+            git commit -m "Apply code formatting [skip ci]"
+            # Push changes back to the branch that triggered the workflow.
+            git push origin HEAD:${GITHUB_REF##refs/heads/}
+          else
+            echo "No formatting changes needed."
+          fi
         env:
+          # The GITHUB_TOKEN is provided by Actions and must have push permissions.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>EnderFurnace</name>
+    <description>Spigot plugin for smelting items similar to how an enderchest works</description>
+    <groupId>com.github.fauxle</groupId>
+    <artifactId>ender-furnace</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <url>https://github.com/Fauxle/EnderFurnace</url>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <minecraft.version>1.14</minecraft.version>
+    </properties>
+
+    <developers>
+        <developer>
+            <name>Fauxle</name>
+            <url>https://github.com/fauxle</url>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/Fauxle/EnderFurnace/issues</url>
+    </issueManagement>
+
+    <inceptionYear>2025</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+            <comments>A short and simple permissive license with conditions only requiring preservation of copyright and license notices.
+                Licensed works, modifications, and larger works may be distributed under different terms and without source code.</comments>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:Fauxle/EnderFurnace.git</connection>
+        <developerConnection>scm:git:git@github.com:Fauxle/EnderFurnace.git</developerConnection>
+        <url>https://github.com/Fauxle/EnderFurnace</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${minecraft.version}-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+</project>

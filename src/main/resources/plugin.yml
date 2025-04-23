@@ -1,0 +1,7 @@
+name: ${project.name}
+main: com.github.fauxle.ef.EnderFurnacePlugin
+version: ${project.version}
+description: ${project.description}
+author: ${project.developers[0].name}
+website: ${project.url}
+api-version: ${minecraft.version}

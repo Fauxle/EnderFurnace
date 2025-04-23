@@ -3,6 +3,7 @@ package com.github.fauxle.ef;
 import com.github.fauxle.ef.commands.EnderFurnaceCommand;
 import java.util.Objects;
 import java.util.Random;
+import lombok.Getter;
 import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -10,6 +11,7 @@ import org.bukkit.WorldType;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@Getter
 public class EnderFurnacePlugin extends JavaPlugin {
 
     private World enderFurnaceWorld;
@@ -58,9 +60,5 @@ public class EnderFurnacePlugin extends JavaPlugin {
             getServer().unloadWorld(enderFurnaceWorld, true);
             enderFurnaceWorld = null;
         }
-    }
-
-    public World getEnderFurnaceWorld() {
-        return enderFurnaceWorld;
     }
 }

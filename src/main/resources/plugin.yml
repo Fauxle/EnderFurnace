@@ -5,3 +5,9 @@ description: ${project.description}
 author: ${project.developers[0].name}
 website: ${project.url}
 api-version: ${minecraft.version}
+commands:
+  enderfurnace:
+    description: Opens the ${project.name} user interface
+    permission: enderfurnace.command.enderfurnace
+    usage: /<command>
+    aliases: ef

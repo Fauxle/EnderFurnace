@@ -1,0 +1,18 @@
+name: Format
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # v2 minimum required
+      - uses: axel-op/googlejavaformat-action@v4
+        with:
+          commit-message: Apply code formatting [skip ci]
+          args: "--skip-sorting-imports --replace"
+          github-token: ${{ secrets.GITHUB_TOKEN }}

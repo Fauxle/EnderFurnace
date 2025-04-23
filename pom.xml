@@ -109,15 +109,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessors>
-                        <annotationProcessor>org.projectlombok.lombok</annotationProcessor>
-                    </annotationProcessors>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>

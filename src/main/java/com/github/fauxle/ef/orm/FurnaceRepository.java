@@ -62,6 +62,7 @@ public class FurnaceRepository {
             b = blockSupplier.get();
         } while (!b.isEmpty());
         b.setType(furnaceType, false);
+        b.getChunk().setForceLoaded(true);
         EnderFurnace ef = new EnderFurnace((Furnace) b.getState());
         enderFurnaces.add(ef);
         return ef;

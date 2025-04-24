@@ -7,7 +7,4 @@ website: ${project.url}
 api-version: ${minecraft.version}
 commands:
   enderfurnace:
-    description: Opens the ${project.name} user interface
-    permission: enderfurnace.command.enderfurnace
-    usage: /<command>
-    aliases: ef
+    description: Base command for ${project.name}

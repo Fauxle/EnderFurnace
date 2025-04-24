@@ -1,9 +1,10 @@
 package com.github.fauxle.ef;
 
-import com.github.fauxle.ef.commands.EnderFurnaceCommand;
+import co.aikar.commands.PaperCommandManager;
+import com.github.fauxle.ef.orm.FurnaceRepository;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Random;
-import lombok.Getter;
 import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -11,20 +12,19 @@ import org.bukkit.WorldType;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
-@Getter
 public class EnderFurnacePlugin extends JavaPlugin {
 
     private World enderFurnaceWorld;
 
     @Override
     public void onEnable() {
-        Objects.requireNonNull(
-                        getCommand("enderfurnace"),
-                        "enderfurnace command is not registered in plugin.yml")
-                .setExecutor(new EnderFurnaceCommand(this));
+        saveDefaultConfig();
 
         WorldCreator enderFurnaceWorldCreator =
-                new WorldCreator("ender_furnace_plugin")
+                new WorldCreator(
+                                Objects.requireNonNullElse(
+                                        getConfig().getString("furnace-world-name"),
+                                        "ender_furnace_plugin"))
                         .environment(World.Environment.NORMAL)
                         .type(WorldType.FLAT)
                         .generateStructures(false)
@@ -50,19 +50,39 @@ public class EnderFurnacePlugin extends JavaPlugin {
         // Set difficulty to peaceful for ensuring mobs are not spawning in the world
         enderFurnaceWorld.setDifficulty(Difficulty.PEACEFUL);
 
-        // Method Used: The setForceLoaded(true) method on a Chunk tells
-        // the server that this chunk should remain loaded even if no players are nearby.
+        // Do not keep chunks we do not need loaded
+        enderFurnaceWorld.setKeepSpawnInMemory(false);
+
+        // Register player world blocker
+        getServer()
+                .getPluginManager()
+                .registerEvents(new WorldBlockListener(enderFurnaceWorld), this);
+
+        // Register the command and FurnaceRepository
+        registerCommands();
+    }
+
+    private void registerCommands() {
+        PaperCommandManager commandManager = new PaperCommandManager(this);
+        try {
+            FurnaceRepository furnaceRepository = new FurnaceRepository(enderFurnaceWorld);
+            commandManager.registerDependency(FurnaceRepository.class, furnaceRepository);
+        } catch (IOException e) {
+            getLogger().severe("Error: Failed to load data from ender furnace world");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        commandManager.registerCommand(new EnderFurnaceCommand());
     }
 
     @Override
     public void onDisable() {
         if (enderFurnaceWorld != null) {
-            getServer().unloadWorld(enderFurnaceWorld, true);
+            if (!getServer().unloadWorld(enderFurnaceWorld, true)) {
+                getLogger().warning("Failed to unload the ender furnace world");
+            }
             enderFurnaceWorld = null;
         }
-    }
-
-    public static EnderFurnacePlugin getInstance() {
-        return getPlugin(EnderFurnacePlugin.class);
     }
 }

@@ -1,0 +1,13 @@
+# ${project.name} configuration
+
+furnace-world-name: 'ender_furnace_plugin'
+
+#furnace-max-per-player: 10
+#furnace-max-per-player-override-permissions:
+#  rank.vip: 100
+#  rank.admin: 1000
+#
+#new-furnace-cost: 100
+#new-furnace-cost-override-permissions:
+#  rank.vip: 10
+#  rank.admin: 0

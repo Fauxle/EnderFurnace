@@ -18,7 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class EnderFurnace {
 
     private static final NamespacedKey META_KEY =
-            new NamespacedKey(EnderFurnacePlugin.getInstance(), "efMeta");
+            new NamespacedKey(EnderFurnacePlugin.getPlugin(EnderFurnacePlugin.class), "efMeta");
 
     private final Furnace furnace;
     private UUID ownerUniqueId;
@@ -41,6 +41,7 @@ public class EnderFurnace {
     public void save() throws IOException {
         PersistentDataContainer container = furnace.getPersistentDataContainer();
         container.set(META_KEY, PersistentDataType.BYTE_ARRAY, serialize());
+        furnace.update(true, false);
     }
 
     private byte[] serialize() throws IOException {

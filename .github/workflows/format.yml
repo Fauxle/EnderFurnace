@@ -1,0 +1,61 @@
+name: Code Format
+
+permissions:
+  contents: write
+
+on:
+  pull_request:
+    # Runs for all pull request branches that are active.
+    branches:
+      - '**'
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Extract Java version from pom.xml property maven.compiler.target.
+      - name: Extract target Java version from pom.xml
+        id: get_java_version
+        run: |
+          JAVA_VERSION=$(mvn help:evaluate -Dexpression=maven.compiler.target -q -DforceStdout)
+          echo "Using Java version ${JAVA_VERSION} from pom.xml"
+          echo "java-version=${JAVA_VERSION}" >> $GITHUB_OUTPUT
+
+      # Set up the Java Development Kit; caching for Maven dependencies is enabled via the `cache` input.
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ steps.get_java_version.outputs.java-version }}
+          distribution: temurin
+          cache: maven
+          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      # Run the Spotless check. Continue even if it fails.
+      - name: Run Maven Spotless Check
+        id: spotless
+        continue-on-error: true
+        run: mvn spotless:check
+
+      # If the Spotless check failed and this is a pull request,
+      # add a comment to the PR explaining why the job failed.
+      - name: Comment on Spotless Failure
+        if: ${{ always() && steps.spotless.outcome == 'failure' && github.event.pull_request }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "❌ **Spotless Check Failed**\n\nYour code does not follow the required formatting guidelines. Please run `mvn spotless:apply` locally to reformat your code and then push the changes."
+            })
+
+      - name: Fail if spotless check failed
+        if: ${{ steps.spotless.outcome == 'failure' }}
+        run: exit 1

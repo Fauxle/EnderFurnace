@@ -1,0 +1,77 @@
+name: Build and Publish Maven Project
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      # Check out the repository.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Extract Java version from pom.xml property maven.compiler.target.
+      - name: Extract target Java version from pom.xml
+        id: get_java_version
+        run: |
+          JAVA_VERSION=$(mvn help:evaluate -Dexpression=maven.compiler.target -q -DforceStdout)
+          echo "Using Java version ${JAVA_VERSION} from pom.xml"
+          echo "java-version=${JAVA_VERSION}" >> $GITHUB_OUTPUT
+
+      # Set up the Java Development Kit; caching for Maven dependencies is enabled via the `cache` input.
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ steps.get_java_version.outputs.java-version }}
+          distribution: temurin
+          cache: maven
+          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      # Build the project using Maven.
+      - name: Build Project
+        run: mvn clean package
+
+      # Determine the Maven project version from the POM file.
+      - name: Determine Project Version
+        id: get_version
+        run: |
+          # Extract the project version from the POM using Maven's help:evaluate plugin.
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Project version: $VERSION"
+          
+          # Expose the version as an output variable.
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Check if the version contains 'SNAPSHOT'
+          if [[ "$VERSION" == *"SNAPSHOT"* ]]; then
+            echo "is_snapshot=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_snapshot=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Deploy the artifact(s) using Maven
+      - name: Publish to GitHub Packages
+        run: mvn deploy -DaltDeploymentRepository=github::https://maven.pkg.github.com/${GITHUB_REPOSITORY} -s $GITHUB_WORKSPACE/settings.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # If the version is not a snapshot, create a GitHub release.
+      - name: Create GitHub Release
+        if: steps.get_version.outputs.is_snapshot == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          # Tag is prefixed with "v", adjust as needed.
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: "Release v${{ steps.get_version.outputs.version }}"
+          body: "Automatically generated release for version v${{ steps.get_version.outputs.version }}"
+          files: target/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

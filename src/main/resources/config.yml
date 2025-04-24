@@ -1,0 +1,6 @@
+# ${project.name} configuration
+
+# The name of the world which will contains all ender furnaces
+# Players do not have access to this world, which they shouldn't,
+# unless the permission enderfurnace.world.join is granted.
+furnace-world-name: 'ender_furnace_plugin'

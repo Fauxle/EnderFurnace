@@ -61,4 +61,8 @@ public class EnderFurnacePlugin extends JavaPlugin {
             enderFurnaceWorld = null;
         }
     }
+
+    public static EnderFurnacePlugin getInstance() {
+        return getPlugin(EnderFurnacePlugin.class);
+    }
 }

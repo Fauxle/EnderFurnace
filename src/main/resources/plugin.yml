@@ -7,4 +7,7 @@ website: ${project.url}
 api-version: ${minecraft.version}
 commands:
   enderfurnace:
-    description: Base command for ${project.name}
+    description: Opens the ender furnace which functions similar to an ender chest
+    permission: enderfurnace.command
+    usage: /<command>
+    aliases: ef

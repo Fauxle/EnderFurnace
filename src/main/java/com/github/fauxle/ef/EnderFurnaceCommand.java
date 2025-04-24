@@ -1,57 +1,46 @@
 package com.github.fauxle.ef;
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
-import com.github.fauxle.ef.orm.EnderFurnace;
-import com.github.fauxle.ef.orm.FurnaceRepository;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.HumanEntity;
 
-@CommandAlias("enderfurnace|ef")
-public class EnderFurnaceCommand extends BaseCommand {
+@RequiredArgsConstructor
+public class EnderFurnaceCommand implements CommandExecutor {
 
-    @Dependency private EnderFurnacePlugin plugin;
+    private final EnderFurnacePlugin plugin;
+    private final FurnaceRepository repository;
 
-    @Dependency private FurnaceRepository repository;
-
-    @Default
-    @Description("Opens your ender furnaces")
-    @CommandPermission("enderfurnace.command")
-    public void onDefault(Player p) {
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
+        if (!(sender instanceof HumanEntity p)) {
+            sender.sendMessage(ChatColor.DARK_RED + "Error: Only players can use this command.");
+            return true;
+        }
+        EnderFurnace enderFurnace;
         List<EnderFurnace> furnaces = repository.findAllAccessibleBy(p.getUniqueId());
         if (furnaces.isEmpty()) {
-            p.sendMessage(
-                    ChatColor.DARK_RED + "Error: You do not have access to any ender furnaces");
-            return;
+            enderFurnace = repository.createNewFurnace(Material.FURNACE);
+            enderFurnace.setOwnerUniqueId(p.getUniqueId());
+            try {
+                enderFurnace.save();
+                p.sendMessage(ChatColor.DARK_GREEN + "New ender furnace created!");
+            } catch (IOException e) {
+                plugin.getLogger()
+                        .log(Level.SEVERE, "Failed to save owner to new ender furnace", e);
+                p.sendMessage(ChatColor.DARK_RED + "Error: Failed to create new ender furnace");
+                return true;
+            }
+        } else {
+            enderFurnace = furnaces.getFirst();
         }
-        p.sendMessage("opening furnace...");
-        p.openInventory(furnaces.getFirst().getFurnace().getInventory());
-    }
-
-    @Subcommand("new")
-    @Description("Creates a new ender furnace")
-    @CommandPermission("enderfurnace.command.new")
-    public void onNewFurnace(Player p) {
-        EnderFurnace enderFurnace = repository.createNewFurnace(Material.FURNACE);
-        enderFurnace.setOwnerUniqueId(p.getUniqueId());
-        try {
-            enderFurnace.save();
-            p.sendMessage(ChatColor.DARK_GREEN + "New ender furnace created!");
-        } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to save owner to new ender furnace", e);
-            p.sendMessage(ChatColor.DARK_RED + "Error: Failed to create new ender furnace");
-        }
-    }
-
-    @Subcommand("delete")
-    @Description("Deletes an ender furnace")
-    @CommandPermission("enderfurnace.command.delete")
-    public void onGoodbye(CommandSender sender) {
-        sender.sendMessage("Delete needs implementation");
+        p.openInventory(enderFurnace.getFurnace().getInventory());
+        return true;
     }
 }

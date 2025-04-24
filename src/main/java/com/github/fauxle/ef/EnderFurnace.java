@@ -1,6 +1,5 @@
-package com.github.fauxle.ef.orm;
+package com.github.fauxle.ef;
 
-import com.github.fauxle.ef.EnderFurnacePlugin;
 import java.io.*;
 import java.time.Instant;
 import java.util.HashSet;
@@ -16,6 +15,8 @@ import org.bukkit.persistence.PersistentDataType;
 @Data
 @NonNull
 public class EnderFurnace {
+
+    private static final int META_DATA_VERSION = 1;
 
     private static final NamespacedKey META_KEY =
             new NamespacedKey(EnderFurnacePlugin.getPlugin(EnderFurnacePlugin.class), "efMeta");
@@ -47,7 +48,7 @@ public class EnderFurnace {
     private byte[] serialize() throws IOException {
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         try (DataOutputStream out = new DataOutputStream(bytesOut)) {
-            out.write(1); // version
+            out.write(META_DATA_VERSION);
             out.writeUTF(ownerUniqueId.toString());
             out.writeInt(canAccessUniqueIds.size());
             for (UUID uuid : canAccessUniqueIds) out.writeUTF(uuid.toString());
@@ -60,9 +61,9 @@ public class EnderFurnace {
     private static EnderFurnace deserialize(Furnace furnace, byte[] data) throws IOException {
         try (DataInputStream in = new DataInputStream(new ByteArrayInputStream(data))) {
             int version = in.read();
-            if (version != 1)
+            if (version != META_DATA_VERSION)
                 throw new IOException(
-                        "Version " + version + " not supported by this plugin version");
+                        "Version " + version + " not supported by this version of the plugin");
             UUID ownerUniqueId = UUID.fromString(in.readUTF());
             int accessSetSize = in.readInt();
             Set<UUID> canAccessUniqueIds = new HashSet<>();

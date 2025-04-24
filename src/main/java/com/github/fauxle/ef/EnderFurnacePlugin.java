@@ -1,7 +1,5 @@
 package com.github.fauxle.ef;
 
-import co.aikar.commands.PaperCommandManager;
-import com.github.fauxle.ef.orm.FurnaceRepository;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Random;
@@ -58,22 +56,15 @@ public class EnderFurnacePlugin extends JavaPlugin {
                 .getPluginManager()
                 .registerEvents(new WorldBlockListener(enderFurnaceWorld), this);
 
-        // Register the command and FurnaceRepository
-        registerCommands();
-    }
-
-    private void registerCommands() {
-        PaperCommandManager commandManager = new PaperCommandManager(this);
         try {
             FurnaceRepository furnaceRepository = new FurnaceRepository(enderFurnaceWorld);
-            commandManager.registerDependency(FurnaceRepository.class, furnaceRepository);
+            Objects.requireNonNull(
+                            getCommand("enderfurnace"), "Command not registered in plugin.yml")
+                    .setExecutor(new EnderFurnaceCommand(this, furnaceRepository));
         } catch (IOException e) {
             getLogger().severe("Error: Failed to load data from ender furnace world");
             getServer().getPluginManager().disablePlugin(this);
-            return;
         }
-
-        commandManager.registerCommand(new EnderFurnaceCommand());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.github.fauxle.ef.orm;
+package com.github.fauxle.ef;
 
 import java.io.IOException;
 import java.util.ArrayList;
